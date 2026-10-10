@@ -1,0 +1,10 @@
+# Overrides for the signoz/k8s-infra Helm chart: ships node/pod metrics, k8s
+# events and container logs from the cluster to the SigNoz collector.
+# Full defaults: helm show values signoz/k8s-infra --version 0.17.1
+global:
+  cloud: gcp
+  clusterName: gapsentinel-clusters
+  deploymentEnvironment: production
+
+otelCollectorEndpoint: signoz-otel-collector.signoz.svc.cluster.local:4317
+otelInsecure: true

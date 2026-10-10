@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kratos-finance
+  namespace: kratos-finance
+  labels:
+    app.kubernetes.io/name: kratos-finance
+  annotations:
+    # Remove if cert-manager is not installed; then supply the TLS secret yourself.
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - kratos-finance.example.com
+      secretName: kratos-finance-tls
+  rules:
+    - host: kratos-finance.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kratos-finance
+                port:
+                  name: http

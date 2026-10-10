@@ -1,0 +1,21 @@
+# Non-sensitive environment variables. Sensitive values belong in the
+# ExternalSecret (externalsecret.yaml).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kratos-finance-env
+  namespace: kratos-finance
+  labels:
+    app.kubernetes.io/name: kratos-finance
+data:
+  PORT: "8000"
+  APP_ENV: "production"
+  LOG_LEVEL: "info"
+  # Redis (k8s/platform/redis); password comes from the ExternalSecret.
+  REDIS_HOST: "redis.redis.svc.cluster.local"
+  REDIS_PORT: "6379"
+  # OpenTelemetry -> SigNoz collector (k8s/platform/signoz)
+  OTEL_SERVICE_NAME: "kratos-finance"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://signoz-otel-collector.signoz.svc.cluster.local:4317"
+  OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+  OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=production"

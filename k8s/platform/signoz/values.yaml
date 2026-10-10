@@ -1,0 +1,27 @@
+# Overrides for the signoz/signoz Helm chart (pinned in platform/install.sh).
+# Full defaults: helm show values signoz/signoz --version 0.145.0
+global:
+  cloud: gcp
+  clusterName: gapsentinel-clusters
+
+clickhouse:
+  persistence:
+    size: 50Gi
+
+signoz:
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      # Remove if cert-manager is not installed; then supply the TLS secret yourself.
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - host: signoz.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+            port: 8080
+    tls:
+      - secretName: signoz-tls
+        hosts:
+          - signoz.example.com

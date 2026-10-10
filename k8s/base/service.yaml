@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kratos-finance
+  namespace: kratos-finance
+  labels:
+    app.kubernetes.io/name: kratos-finance
+spec:
+  type: ClusterIP
+  selector:
+    app: kratos-finance
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

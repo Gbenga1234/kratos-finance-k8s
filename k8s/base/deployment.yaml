@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kratos-finance
+  namespace: kratos-finance
+  labels:
+    app: kratos-finance
+    app.kubernetes.io/name: kratos-finance
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: kratos-finance
+  template:
+    metadata:
+      labels:
+        app: kratos-finance
+        app.kubernetes.io/name: kratos-finance
+    spec:
+      # imagePullSecrets:
+      #   - name: ghcr-pull-secret
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: kratos-finance
+          image: ghcr.io/REPLACE_WITH_ORG/kratos-finance:REPLACE_WITH_TAG
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: kratos-finance-env
+            - secretRef:
+                name: kratos-finance
+          # TCP probes work for any app; switch to httpGet on a health
+          # endpoint (e.g. /healthz) once the app exposes one.
+          startupProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 5
+            failureThreshold: 30
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 20
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
