@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: kratos-finance
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  description: kratos-finance app and its platform services (Redis, SigNoz)
+  sourceRepos:
+    - https://github.com/Gbenga1234/kratos-finance-k8s.git
+    - https://charts.signoz.io
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: kratos-finance
+    - server: https://kubernetes.default.svc
+      namespace: redis
+    - server: https://kubernetes.default.svc
+      namespace: signoz
+  # SigNoz installs CRDs and ClusterRoles; the apps create their namespaces.
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"

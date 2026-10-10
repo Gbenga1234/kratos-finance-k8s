@@ -1,0 +1,23 @@
+# App-of-apps entry point. Apply once by hand:
+#   kubectl apply -f k8s/argocd/root-app.yaml
+# Argo CD then manages everything under k8s/argocd/apps/.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Gbenga1234/kratos-finance-k8s.git
+    targetRevision: main
+    path: k8s/argocd/apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

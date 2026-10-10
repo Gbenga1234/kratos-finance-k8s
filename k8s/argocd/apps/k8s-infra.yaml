@@ -1,0 +1,33 @@
+# Cluster metrics/logs/events collectors that ship to SigNoz.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: k8s-infra
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: kratos-finance
+  sources:
+    - repoURL: https://charts.signoz.io
+      chart: k8s-infra
+      targetRevision: 0.17.1
+      helm:
+        releaseName: k8s-infra
+        valueFiles:
+          - $values/k8s/platform/signoz/k8s-infra-values.yaml
+    - repoURL: https://github.com/Gbenga1234/kratos-finance-k8s.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: signoz
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
