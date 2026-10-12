@@ -168,5 +168,6 @@ kubectl apply -f k8s/base/secret.example.yaml
 - Redis is a single instance with AOF persistence and no failover.
 - The app container runs as UID 1000 (non-root). Adjust `deployment.yaml` if the
   image needs a different user.
-- Health probes are TCP checks on port 8000. Switch to `httpGet` once the app
-  exposes a health endpoint.
+- Health probes: startup and liveness hit `GET /healthz` (process alive, no
+  dependency checks); readiness hits `GET /readyz` (ready to serve, including
+  DB/Redis). Both must return 2xx/3xx on port 8000.

@@ -44,22 +44,32 @@ spec:
                 name: kratos-finance-env
             - secretRef:
                 name: kratos-finance
-          # TCP probes work for any app; switch to httpGet on a health
-          # endpoint (e.g. /healthz) once the app exposes one.
+          # Startup: gives the app up to 150s to boot before liveness kicks in.
           startupProbe:
-            tcpSocket:
+            httpGet:
+              path: /healthz
               port: http
             periodSeconds: 5
+            timeoutSeconds: 3
             failureThreshold: 30
+          # Readiness: /readyz should fail while dependencies (DB, Redis) are
+          # unavailable, removing the pod from the Service without restarting it.
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /readyz
               port: http
             periodSeconds: 10
+            timeoutSeconds: 3
+            successThreshold: 1
             failureThreshold: 3
+          # Liveness: /healthz should only check the process itself, not
+          # dependencies, so an outage elsewhere doesn't restart every pod.
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /healthz
               port: http
             periodSeconds: 20
+            timeoutSeconds: 3
             failureThreshold: 3
           resources:
             requests:
